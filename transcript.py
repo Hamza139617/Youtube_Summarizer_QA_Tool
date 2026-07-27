@@ -53,16 +53,21 @@ def process(transcript : List):
     """
 
     txt = ""
+    try:
+        for i in transcript:
 
-    for i in transcript:
+            try:
+                txt += f"Text: {i.text} Start: {i.start}\n"
+            except KeyError as k:
+                print(f"There was an error while processing transcript \n Error : {k}")
+                pass
 
-        try:
-            txt += f"Text: {i.text} Start: {i.start}\n"
-        except KeyError as k:
-            print(f"There was an error while processing transcript \n Error : {k}")
-            pass
+                return txt
+    
+    except Exception as e:
+        print("There was an error while processing the transcript")
+        return "Error processing the URL"
 
-    return txt
 
 
 
