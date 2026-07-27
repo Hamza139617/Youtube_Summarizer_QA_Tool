@@ -5,3 +5,4 @@ fastapi
 langchain_groq
 faiss-cpu
 youtube-transcript-api
+langchain_text_splitters
