@@ -84,5 +84,3 @@ def chunk_transcript(processed_transcript: str, chunk_size: int = 400, chunk_ove
     chunks = text_splitter.split_text(processed_transcript)
     return chunks
 
-
-
