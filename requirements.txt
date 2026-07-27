@@ -1,0 +1,7 @@
+langchain
+langchain_community
+gradio
+fastapi
+langchain_groq
+faiss-cpu
+youtube-transcript-api
