@@ -49,7 +49,7 @@ def get_transcript(url : str):
 
 def process(transcript : List):
     """
-    
+    For processing the transcript
     """
 
     txt = ""
@@ -66,14 +66,23 @@ def process(transcript : List):
 
 
 
+def chunk_transcript(processed_transcript: str, chunk_size: int = 400, chunk_overlap: int = 10):
+    """
+    for chunking
+    """
+
+    if processed_transcript is None:
+        return None
+    
+
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=len
+    )
+
+    chunks = text_splitter.split_text(processed_transcript)
+    return chunks
 
 
 
-
-# test 1
-
-result = get_transcript("https://www.youtube.com/watch?v=-i6zQPIcErI")
-
-for r in result:
-
-    print(f"Text : {r.text}")
