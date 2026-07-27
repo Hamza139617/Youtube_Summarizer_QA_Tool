@@ -1,7 +1,7 @@
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from transcript import get_transcript, process
-from ai_model import creating_llm
+from transcript import get_transcript, process, chunk_transcript
+from ai_model import creating_llm, creating_embedding_model, create_faiss_index
 
 
 def create_summary_prompt():
@@ -114,4 +114,38 @@ def summarize_video(video_url: str):
         return "No transcript available. Please fetch the transcript first"
         
 
+
+def answer_question(video_url, user_question):
+    """
+    for answering the user question and also summarizing the youtube video
+    """
+
+    global fetched_transcript, processed_transcript
+
+    if not processed_transcript:
+        if video_url:
+
+            fetched_transcript = get_transcript(video_url)
+            processed_transcript = process(fetched_transcript)
+        else:
+            return "Please provide a valid Youtube URL"
+
+
+    if processed_transcript and user_question:
+
+        chunks = chunk_transcript(processed_transcript)
+
+        llm = creating_llm()
+
+        embedding_model = creating_embedding_model()
+
+        faiss_index = create_faiss_index(chunks, embedding_model)
+
+        qa_prompt = create_qa_prompt_template()
+        qa_chain = create_summary_chain(llm, qa_prompt)
+
+        answer = generate_answer(user_question, faiss_index, qa_chain)
+        return answer
+    else:
+        return "Please provide a valid question and ensure the transcript has been fetched."
 
