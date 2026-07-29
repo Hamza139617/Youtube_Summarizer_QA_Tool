@@ -15,7 +15,7 @@ def create_interface():
         summarize_btn = gr.Button("Summarize Video")
         question_btn = gr.Button("Ask a Question")
 
-        transcript_status = gr.Textbox(label="Transcript Status", interactive=False)
+
 
         summarize_btn.click(summarize_video, inputs=video_url, outputs=summary_output)
         question_btn.click(answer_question, inputs=[video_url, question_input], outputs=answer_output)
