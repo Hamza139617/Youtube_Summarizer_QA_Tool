@@ -1,4 +1,4 @@
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.chat_history import InMemoryChatMessageHistory
@@ -78,24 +78,48 @@ def retrieving_summary(query, faiss_index, k=7):
     return relevant_context
 
 
+
+def create_qa_chain(prompt, llm, parser):
+
+    chain = (prompt | llm | parser )
+
+    overall_chain = RunnableWithMessageHistory(
+        chain,
+        get_session,
+        input_messages_key="question",
+        history_messages_key="history",
+        output_messages_key="answer"
+    )
+
+    return overall_chain
+
+
 def create_qa_prompt_template():
     """
     for creating the prompt template for question and answering based on video content
     """
 
-    qa_template = """
-You are an expert assistant providing detailed answers based on the following video content.
+    prompt = ChatPromptTemplate.from_messages([
+        (
+            "system",
+            """
+            You are a helpful question-answering assistant.
 
-    Relevant Video Context: {context}
+            Answer the user's question using only the provided context.
 
-    Based on the above context, please answer the following question:
-    Question: {question}
-"""
+            Context:
+            {context}
 
-    prompt = PromptTemplate(
-        template=qa_template,
-        input_variables=["context", "question"]
-    )
+            If the answer cannot be found in the context, say that you
+            don't have enough information to answer the question.
+            Do not make up or assume information.
+            """
+        ),
+
+        MessagesPlaceholder("history"),
+
+        ("human", "{question}")
+    ])
 
     return prompt
 
@@ -109,6 +133,18 @@ def generate_answer(question, faiss_index, qa_chain, k=7):
     relevant_context = retrieving_summary(question, faiss_index, k=k)
 
     answer = qa_chain.invoke({"context":relevant_context, "question": question})
+
+    answer = qa_chain.invoke(
+        {
+            "context":relevant_context,
+            "question":question
+        },
+        config={
+            "configurable": {
+                "session_id": "user_123"
+            }
+        }
+    )
 
     return answer
 
@@ -186,7 +222,7 @@ def answer_question(video_url, user_question):
         faiss_index = create_faiss_index(chunks, embedding_model)
 
         qa_prompt = create_qa_prompt_template()
-        qa_chain = create_summary_chain(llm, qa_prompt)
+        qa_chain = create_qa_chain(llm, qa_prompt, StrOutputParser())
 
         answer = generate_answer(user_question, faiss_index, qa_chain)
         return answer
