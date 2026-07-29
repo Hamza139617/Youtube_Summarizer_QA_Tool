@@ -1,5 +1,10 @@
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.chat_history import InMemoryChatMessageHistory
+
+
+
 from transcript import get_transcript, process, chunk_transcript
 from ai_model import creating_llm, creating_embedding_model, create_faiss_index
 
@@ -121,7 +126,7 @@ def summarize_video(video_url: str):
                 print(f"Error : {e}")
 
                 summary = "The video is too long\n Sorry couldn't summarize it "
-                
+
         return summary
 
     else:
