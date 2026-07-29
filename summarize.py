@@ -87,8 +87,7 @@ def create_qa_chain(prompt, llm, parser):
         chain,
         get_session,
         input_messages_key="question",
-        history_messages_key="history",
-        output_messages_key="answer"
+        history_messages_key="history"
     )
 
     return overall_chain
@@ -132,7 +131,6 @@ def generate_answer(question, faiss_index, qa_chain, k=7):
 
     relevant_context = retrieving_summary(question, faiss_index, k=k)
 
-    answer = qa_chain.invoke({"context":relevant_context, "question": question})
 
     answer = qa_chain.invoke(
         {
@@ -222,7 +220,7 @@ def answer_question(video_url, user_question):
         faiss_index = create_faiss_index(chunks, embedding_model)
 
         qa_prompt = create_qa_prompt_template()
-        qa_chain = create_qa_chain(llm, qa_prompt, StrOutputParser())
+        qa_chain = create_qa_chain(qa_prompt, llm, StrOutputParser())
 
         answer = generate_answer(user_question, faiss_index, qa_chain)
         return answer
