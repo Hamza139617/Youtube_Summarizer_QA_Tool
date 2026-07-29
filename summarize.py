@@ -9,8 +9,29 @@ from transcript import get_transcript, process, chunk_transcript
 from ai_model import creating_llm, creating_embedding_model, create_faiss_index
 
 
+# global variables
+
 embedding_model = creating_embedding_model()
 processed_transcript = ""
+
+store = {}
+
+
+
+
+def get_session(session_id: str):
+    """
+    for storing the sessions seperately for each user
+    """
+
+    if session_id not in store:
+
+        store[session_id] = InMemoryChatMessageHistory()
+
+    return store[session_id]
+
+
+
 
 def create_summary_prompt():
     """
