@@ -9,6 +9,9 @@ from transcript import get_transcript, process, chunk_transcript
 from ai_model import creating_llm, creating_embedding_model, create_faiss_index
 
 
+embedding_model = creating_embedding_model()
+processed_transcript = ""
+
 def create_summary_prompt():
     """
     create a prompttemplate for summarizing a youtube video transcript
@@ -157,7 +160,7 @@ def answer_question(video_url, user_question):
 
         llm = creating_llm()
 
-        embedding_model = creating_embedding_model()
+#        embedding_model = creating_embedding_model()
 
         faiss_index = create_faiss_index(chunks, embedding_model)
 
