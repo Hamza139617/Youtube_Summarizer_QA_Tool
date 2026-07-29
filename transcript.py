@@ -62,13 +62,13 @@ def process(transcript : List):
                 print(f"There was an error while processing transcript \n Error : {k}")
                 pass
 
-                return txt
+                
     
     except Exception as e:
         print("There was an error while processing the transcript")
         return "Error processing the URL"
 
-
+    return txt
 
 
 def chunk_transcript(processed_transcript: str, chunk_size: int = 400, chunk_overlap: int = 10):

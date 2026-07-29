@@ -34,7 +34,7 @@ def create_summary_chain(llm, prompt):
     used for creating the chain 
     """
 
-    chain = llm | prompt | StrOutputParser()
+    chain =  prompt | llm | StrOutputParser()
 
     return chain
 
@@ -79,7 +79,7 @@ def generate_answer(question, faiss_index, qa_chain, k=7):
 
     relevant_context = retrieving_summary(question, faiss_index, k=k)
 
-    answer = qa_chain.predict(context=relevant_context, question=question)
+    answer = qa_chain.invoke({"context":relevant_context, "question": question})
 
     return answer
 
@@ -105,8 +105,23 @@ def summarize_video(video_url: str):
 
         summary_chain = create_summary_chain(llm, summary_prompt)
 
-        summary = summary_chain.invoke({"transcript":processed_transcript})
+        try:
+            summary = summary_chain.invoke({"transcript":processed_transcript})
+        except:
+            try:
+                chunks = chunk_transcript(processed_transcript, chunk_size=3000, chunk_overlap=200)
 
+                chunk_summaries = [summary_chain.invoke({"transcript":chunk}) for chunk in chunks]
+
+                combine_summaries = "\n".join(chunk_summaries)
+
+                summary = summary_chain.invoke({"transcript":combine_summaries})
+
+            except Exception as e:
+                print(f"Error : {e}")
+
+                summary = "The video is too long\n Sorry couldn't summarize it "
+                
         return summary
 
     else:
